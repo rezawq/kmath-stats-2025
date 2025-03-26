@@ -1,0 +1,84 @@
+@startuml
+
+!theme plain
+'top to bottom direction
+skinparam linetype ortho
+
+class AbstractStorelessUnivariateStatistic
+class AbstractUnivariateStatistic
+
+package rank{
+class Max
+class Median
+class Min
+class PSquarePercentile
+class Percentile
+}
+
+package summary{
+class Product
+class Sum
+class SumOfLogs
+class SumOfSquares
+}
+
+package moment{
+class FirstMoment
+class FourthMoment
+class GeometricMean
+class Kurtosis
+class Mean
+class SecondMoment
+class SemiVariance
+class Skewness
+class StandardDeviation
+class ThirdMoment
+class Variance
+}
+
+
+interface StorelessUnivariateStatistic << interface >> {
+  + getN(): long
+  + getResult(): double
+  + incrementAll(double[]): void
+  + increment(double): void
+  + copy(): StorelessUnivariateStatistic
+  + clear(): void
+  + incrementAll(double[], int, int): void
+}
+
+interface UnivariateStatistic << interface >> {
+  + evaluate(double[], int, int): double
+  + evaluate(double[]): double
+  + copy(): UnivariateStatistic
+}
+interface WeightedEvaluation << interface >>
+
+AbstractStorelessUnivariateStatistic  -up[#008200,dashed]-^  StorelessUnivariateStatistic
+AbstractUnivariateStatistic           -up[#008200,dashed]-^  UnivariateStatistic
+FirstMoment                           -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+FourthMoment                          -up[#000082,plain]-^  ThirdMoment
+GeometricMean                         -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+Kurtosis                              -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+Max                                   -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+Mean                                  -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+Mean                                  -up[#008200,dashed]-^  WeightedEvaluation
+Median                                -up[#000082,plain]-^  Percentile
+Min                                   -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+PSquarePercentile                     -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+PSquarePercentile                     -up[#008200,dashed]-^  StorelessUnivariateStatistic
+Percentile                            -up[#000082,plain]-^  AbstractUnivariateStatistic
+Product                               -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+Product                               -up[#008200,dashed]-^  WeightedEvaluation
+SecondMoment                          -up[#000082,plain]-^  FirstMoment
+SemiVariance                          -up[#000082,plain]-^  AbstractUnivariateStatistic
+Skewness                              -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+StandardDeviation                     -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+StorelessUnivariateStatistic          -up[#008200,plain]-^  UnivariateStatistic
+Sum                                   -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+SumOfLogs                             -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+SumOfSquares                          -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+ThirdMoment                           -up[#000082,plain]-^  SecondMoment
+Variance                              -up[#000082,plain]-^  AbstractStorelessUnivariateStatistic
+Variance                              -up[#008200,dashed]-^  WeightedEvaluation
+@enduml

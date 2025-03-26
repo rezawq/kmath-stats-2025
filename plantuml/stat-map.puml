@@ -1,0 +1,44 @@
+@startmindmap
+'https://plantuml.com/mindmap-diagram
+
+caption figure 1
+'top to bottom direction
+title Статистики
+
+* Функции статистических данных\n (функции выборки)
+** Меры центральной тенденции
+***[#yellowgreen] Среднее арифметическое
+*** Среднее геометрическое
+*** Среднее гармоническое
+***[#yellowgreen] Медиана
+*** Мода
+** Меры разброса
+*** Дисперсия
+*** Стандартное отклонение
+*** Размах
+** Меры формы распределения
+*** Асимметрия
+*** Эксцесс
+** Меры положения (квантили)
+*** Квантили
+*** Квартили
+*** Децили
+*** Процентили
+
+
+'header
+'Statistics
+'endheader
+'
+'center footer My super footer
+
+legend right
+'   the <#FFFFFF,#FFFFFF> sets the background color of the legend to white
+    ' the space between the | and <#blue> is important to make the color column wider
+    |<#lightgreen>     | Есть в KMath|
+'    |<#lightyellow>    | Первая очередь реализации|
+'    |<#lightblue>     | Клиент - Мобильное Приложение |
+'    |<#lightgray>| Перечисление / enum|
+endlegend
+
+@endmindmap
