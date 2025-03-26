@@ -12,6 +12,7 @@
 
 ![stat-map.png](stat-map.png)
 
+
 #### 1. Меры центральной тенденции
 
 * Среднее арифметическое
@@ -65,6 +66,15 @@
 
 * [javadocs](https://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/org/apache/commons/math3/stat/descriptive/package-summary.html)
 
+Особенности
+
+* Только однопоточная обработка
+* На вход получает только массив double
+* Используются приемы для обеспечения численной стабильности (см `Mean`, `Variance` )
+* Достаточно сложная реализация в классе Percentile. Цитата из javadoc
+> ... uses only selection instead of complete sorting and caches selection algorithm state between calls to the various evaluate methods. This greatly improves efficiency.
+
+
 #### Пример из javadoc:
 
 **_UnivariateStatistic:_**
@@ -91,8 +101,100 @@ stat.clear(); //3
 out.println("mean after clear is NaN = " + stat.getResult());
 ```
 
+
 #### Диаграмма классов
 
 Неполная, только с классами - статистиками
 
 ![apache-stat-classes.png](apache-stat-classes.png)
+
+
+### Обзор KMath модуль stats
+
+* https://github.com/SciProgCentre/kmath
+* Определены алгебраические структуры https://github.com/SciProgCentre/kmath/blob/dev/docs/algebra.md 
+
+
+#### Интерфейсы Statistic, BlockingStatistic, ComposableStatistic:
+
+```kotlin
+/**
+ * A function that transforms a buffer of random quantities to some resulting value
+ */
+ public fun interface Statistic<in T, out R> {
+   public suspend fun evaluate(data: Buffer<T>): R
+}
+```
+
+```kotlin
+/**
+ * A statistic that is computed in a synchronous blocking mode
+ */
+public fun interface BlockingStatistic<in T, out R> : Statistic<T, R> {
+  public fun evaluateBlocking(data: Buffer<T>): R
+
+  override suspend fun evaluate(data: Buffer<T>): R = evaluateBlocking(data)
+}
+```
+
+```kotlin
+/**
+ * A statistic tha could be computed separately on different blocks of data and then composed
+ *
+ * @param T the source type.
+ * @param I the intermediate block type.
+ * @param R the result type.
+ */
+public interface ComposableStatistic<in T, I, out R> : Statistic<T, R> {
+  //compute statistic on a single block
+  public suspend fun computeIntermediate(data: Buffer<T>): I
+
+  //Compose two blocks
+  public suspend fun composeIntermediate(first: I, second: I): I
+
+  //Transform block to result
+  public suspend fun toResult(intermediate: I): R
+
+  override suspend fun evaluate(data: Buffer<T>): R = toResult(computeIntermediate(data))
+}
+```
+
+
+#### Реализованные статистики:
+
+```kotlin
+/**
+ * Arithmetic mean
+ */
+public class Mean<T>(
+    private val field: Field<T>,
+) : ComposableStatistic<T, Pair<T, Int>, T>, BlockingStatistic<T, T> {}
+```
+
+```kotlin
+/**
+ * Non-composable median
+ */
+public class Median<T>(private val field: Field<T>, private val comparator: Comparator<T>) : BlockingStatistic<T, T> {}
+
+  
+```
+
+* Mean может быть подсчитан над любым полем, определенном в понятии Field (не совсем сопадает с алгебраическим понятием поля)
+* Median может быть подсчитан над любым полем в котором есть линейный порядок элементов.
+
+
+## Рассматриваемые вопросы
+
+ 1. Можно ли использовать Apache Commons Math?
+ 2. Нужно ли использовать численные оптимизации из Apache Commons Math
+ 3. Применимы ли численные оптимизации из Apache Commons Math для сложных объектов - матрицы и т.п.
+ 4. Для каких статистик есть алгоритм композитного вычисления?
+ 5. Какой набор статистик реализовывать?
+
+
+## План работ
+
+1) Проектирование
+2) Минимальный набор статистик, основанных на суммировании
+3) Моменты
